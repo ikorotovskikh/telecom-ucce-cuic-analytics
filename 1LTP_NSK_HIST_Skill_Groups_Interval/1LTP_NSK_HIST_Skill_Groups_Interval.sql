@@ -1,10 +1,15 @@
+BEGIN
+SET ANSI_WARNINGS ON
+SET NOCOUNT ON
+
+
 DECLARE @pDateFrom DATETIME = :StartTime
 DECLARE @pDateTo DATETIME = :EndTime
 
 DECLARE @typeDT VARCHAR(2) = :typeDT
 
 
---@typeDT 0 - Произвольный интервал, 1 - Сутки, 2 - Часы, 3 - 15 минут
+--@typeDT 0 - Custom interval, 1 - Daily, 2 - Hourly, 3 - 15 minutes
 DECLARE @pTypeDT 	int 	 = CASE ISNUMERIC(@typeDT) WHEN 1 THEN CAST(@typeDT AS INT) ELSE 3 END
 
 DROP TABLE IF EXISTS #SGI
@@ -16,44 +21,44 @@ WHERE DateTime >= @pDateFrom AND DateTime <= @pDateTo AND SkillTargetID IN (:SgI
 
 ;WITH tPeriods
 (
-dtPeriodBegin,  -- Начало периода
-dtPeriodEnd,    -- Окончание периода
-dtPeriodEndLast -- Последние значение выборки
+dtPeriodBegin,  -- Period start
+dtPeriodEnd,    -- Period end
+dtPeriodEndLast -- Last value of the sample selection
 ) 
 AS
 (
 SELECT 
 (CASE @pTypeDT 
 WHEN 0 THEN @pDateFrom
-WHEN 1 THEN CAST(@pDateFrom AS DATE)-- обнуляем время (полночь)
--- округление до часа в сторону ближайшего меньшего, отбрасываем миллисекунды
+WHEN 1 THEN CAST(@pDateFrom AS DATE)-- reset time part (midnight)
+-- round down to the nearest hour, stripping milliseconds
 WHEN 2 THEN DATEADD(MINUTE, DATEDIFF(MINUTE, 0, DATEADD(MINUTE,  (-1 * (DATEPART(MINUTE, @pDateFrom) % 60)), @pDateFrom)), 0)
--- округление до 15 минут в сторону ближайшего меньшего, отбрасываем миллисекунды
+-- round down to the nearest 15 minutes, stripping milliseconds
 WHEN 3 THEN DATEADD(MINUTE, DATEDIFF(MINUTE, 0, DATEADD(MINUTE,  (-1 * (DATEPART(MINUTE, @pDateFrom) % 15)), @pDateFrom)), 0)
 ELSE @pDateFrom 
-END) as dtPeriodBegin,--Начало периода
+END) as dtPeriodBegin,-- Period start
 (CASE @pTypeDT 
 WHEN 0 THEN @pDateTo
 WHEN 1 THEN DATEADD(dd,1,CAST(@pDateFrom AS DATE))
-WHEN 2 THEN DATEADD(HOUR,1,DATEADD(MINUTE,DATEDIFF(MINUTE,0,DATEADD(SECOND,30*1*60-1,@pDateFrom))/60*60,0))--Округление до часа в сторону большего
-WHEN 3 THEN DATEADD(MINUTE,15,DATEADD(MINUTE,DATEDIFF(MINUTE,0,DATEADD(SECOND,30*1*15-1,@pDateFrom))/15*15,0))--Округление до 15 минут в сторону большего
+WHEN 2 THEN DATEADD(HOUR,1,DATEADD(MINUTE,DATEDIFF(MINUTE,0,DATEADD(SECOND,30*1*60-1,@pDateFrom))/60*60,0))-- round up to the nearest hour
+WHEN 3 THEN DATEADD(MINUTE,15,DATEADD(MINUTE,DATEDIFF(MINUTE,0,DATEADD(SECOND,30*1*15-1,@pDateFrom))/15*15,0))-- round up to the nearest 15 minutes
 ELSE @pDateTo 
-END) AS dtPeriodEnd,--Окончание первого периода 
+END) AS dtPeriodEnd,-- End of the first period 
 (CASE @pTypeDT 
 WHEN 0 THEN @pDateTo
 WHEN 1 THEN CAST(DATEADD(dd,1,DATEADD(SECOND, -1, CAST(CAST(@pDateTo AS DATE) AS DATETIME))) AS DATE)
--- округление до часа в сторону ближайшего большего, , отбрасываем миллисекунды; если 00_00 - то не округляем
-WHEN 2 THEN CASE WHEN DATEPART(MINUTE, @pDateTo) % 60 = 0 AND DATEPART(SECOND, @pDateTo) = 0
+-- round up to the nearest hour, stripping milliseconds; if exactly 00:00 - do not round
+WHEN 2 THEN CASE WHEN DATEPART(MINUTE, @pDateTo) % 60 = 0 AND DATEPART(SECOND, @pTo) = 0
 								THEN DATEADD(MINUTE, DATEDIFF(MINUTE, 0, @pDateTo), 0)
 								ELSE DATEADD(MINUTE, DATEDIFF(MINUTE, 0, DATEADD(MINUTE, (60 - DATEPART(MINUTE, @pDateTo) % 60), @pDateTo)), 0)
 								END
--- округление до 15 минут в сторону ближайшего большего, , отбрасываем миллисекунды; если 00_00, 15_00, 30_00 или 45_00 - то не округляем
+-- round up to the nearest 15 minutes, stripping milliseconds; if exactly 00:00, 15:00, 30:00 or 45:00 - do not round
 WHEN 3 THEN CASE WHEN DATEPART(MINUTE, @pDateTo) % 15 = 0 AND DATEPART(SECOND, @pDateTo) = 0
 								THEN DATEADD(MINUTE, DATEDIFF(MINUTE, 0, @pDateTo), 0)
 								ELSE DATEADD(MINUTE, DATEDIFF(MINUTE, 0, DATEADD(MINUTE, (15 - DATEPART(MINUTE, @pDateTo) % 15), @pDateTo)), 0)
 								END
 ELSE @pDateTo 
-END) as dtPeriodEndLast	--Окончание периода
+END) as dtPeriodEndLast	-- Period end
 UNION ALL
 SELECT dtPeriodEnd as dtPeriodBegin,
 (CASE @pTypeDT 
