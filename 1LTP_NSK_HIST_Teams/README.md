@@ -90,5 +90,3 @@ Repeated calls are processed via a separated `SELECT` query subroutines using th
 * For metrics dependent on Skill Group configurations, individual row summations query their respective Skill Group datasets.
 * For parameters independent of Skill Group constraints (e.g., `Logged On Time`), totals are computed directly using the lower boundary rollup row summary profile.
 ```
-
-Если вам потребуется дописать сам **SQL-код для вычисления блока повторных звонков (`rc_count`)** с учетом этой логики дедупликации по последнему агенту, дайте знать. Мы сможем спроектировать его оптимально через оконные функции `ROW_NUMBER()`.
