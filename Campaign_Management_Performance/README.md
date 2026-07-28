@@ -25,18 +25,18 @@
 | 3 | `NumAgents` | Assigned Agents | `SUM(NumAgents)` via `NumOfAgentsCalc` | Distinct count of active `AgentId` operators logged into the campaign within the day. |
 | 4 | `CampaignTime` | Campaign Operation Time | `SUM(CampaignTime)` via `#TT.CampaignCallDuration` | Summary duration of all call interactions initiated by the dialer loop. |
 | 5 | `numAttemps` | Attempts | `SUM(numAttemps)` via `NumAttemptsCalc` | Total dial attempts counter where `ClientCallDialingStartTime IS NOT NULL`. |
-| - | `callsSuccess` | Dialer Success Calls | `SUM(callsSuccess)` via `NumAttemptsCalc` | Outbound contacts delivered to an agent, or unhandled calls with `PhoneResultId = 209`. |
-| - | `callsLost` | Dialer Lost Calls | `SUM(callsLost)` via `NumAttemptsCalc` | Dialer calls abandoned in queue/dropped where `AgentId IS NULL` and result is `209`. |
-| - | `callsLostP` | Lost Calls % | `SUM(callsLost) * 1.0 / SUM(callsSuccess)` | **Zero-Division Protected:** Ratio of lost dialer contacts over successful deliveries. |
-| - | `AgentTime` | Total Agent Work Time | `SUM(TalkTime + HoldTime + WorkTime)` | Total accumulated seconds spent by agents processing connections (Talk + Hold + ACW). |
-| - | `ManHours` | Average Agent Load | `SUM(AgentTime) * 1.0 / SUM(NumAgents)` | **Zero-Division Protected:** Calculated distribution of work seconds across active assigned operators. |
-| - | `numTCDVoiceCalls`| Telephony Handled Count | `COUNT(*)` via `AgentTimeCalc` | Total segment record row counter validated inside the `#TT` bridge cache. |
-| 18 | `TalkingTime` | Total Talk Time | `SUM(TalkingTime)` via `AgentTimeCalc` | Combined active agent talk duration in seconds. |
-| 19 | `awgTalkTime` | Avg Dialer Talk Time | `SUM(TalkingTime) * 1.0 / SUM(calls1s)` | **Zero-Division Protected:** Average conversation duration for calls lasting 1 second or longer. |
-| - | `talkTimeP` | Talk Time Utilization % | `SUM(TalkingTime) * 1.0 / SUM(CampaignTime)` | **Zero-Division Protected:** Productive conversion ratio of pure talk time against global campaign duration. |
-| - | `calls1s` | Calls (>= 1s) | `SUM(CASE WHEN TalkTime >= 1 THEN 1 ELSE 0 END)` | Volume of customer contacts lasting 1 second or longer. |
-| - | `calls1sTime` | Total Time (>= 1s) | `SUM(CASE WHEN TalkTime >= 1 THEN TalkTime ELSE 0 END)` | Aggregated seconds accumulated across connections lasting 1 second or longer. |
-| - | `calls5s` | Calls (>= 5s) | `SUM(CASE WHEN TalkTime >= 5 THEN 1 ELSE 0 END)` | Volume of customer contacts lasting 5 seconds or longer. |
+| 6 | `callsSuccess` | Dialer Success Calls | `SUM(callsSuccess)` via `NumAttemptsCalc` | Outbound contacts delivered to an agent, or unhandled calls with `PhoneResultId = 209`. |
+| 7 | `callsLost` | Dialer Lost Calls | `SUM(callsLost)` via `NumAttemptsCalc` | Dialer calls abandoned in queue/dropped where `AgentId IS NULL` and result is `209`. |
+| 8 | `callsLostP` | Lost Calls % | `SUM(callsLost) * 1.0 / SUM(callsSuccess)` | **Zero-Division Protected:** Ratio of lost dialer contacts over successful deliveries. |
+| 9 | `AgentTime` | Total Agent Work Time | `SUM(TalkTime + HoldTime + WorkTime)` | Total accumulated seconds spent by agents processing connections (Talk + Hold + ACW). |
+| 10 | `ManHours` | Average Agent Load | `SUM(AgentTime) * 1.0 / SUM(NumAgents)` | **Zero-Division Protected:** Calculated distribution of work seconds across active assigned operators. |
+| 11 | `numTCDVoiceCalls`| Telephony Handled Count | `COUNT(*)` via `AgentTimeCalc` | Total segment record row counter validated inside the `#TT` bridge cache. |
+| 12 | `TalkingTime` | Total Talk Time | `SUM(TalkingTime)` via `AgentTimeCalc` | Combined active agent talk duration in seconds. |
+| 13 | `awgTalkTime` | Avg Dialer Talk Time | `SUM(TalkingTime) * 1.0 / SUM(calls1s)` | **Zero-Division Protected:** Average conversation duration for calls lasting 1 second or longer. |
+| 14 | `talkTimeP` | Talk Time Utilization % | `SUM(TalkingTime) * 1.0 / SUM(CampaignTime)` | **Zero-Division Protected:** Productive conversion ratio of pure talk time against global campaign duration. |
+| 15 | `calls1s` | Calls (>= 1s) | `SUM(CASE WHEN TalkTime >= 1 THEN 1 ELSE 0 END)` | Volume of customer contacts lasting 1 second or longer. |
+| 16 | `calls1sTime` | Total Time (>= 1s) | `SUM(CASE WHEN TalkTime >= 1 THEN TalkTime ELSE 0 END)` | Aggregated seconds accumulated across connections lasting 1 second or longer. |
+| 17 | `calls5s` | Calls (>= 5s) | `SUM(CASE WHEN TalkTime >= 5 THEN 1 ELSE 0 END)` | Volume of customer contacts lasting 5 seconds or longer. |
 
 ---
 
