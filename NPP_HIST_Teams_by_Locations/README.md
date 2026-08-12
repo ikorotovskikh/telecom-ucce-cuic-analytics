@@ -1,7 +1,7 @@
 # NPP_HIST_Teams_by_Locations
 
 ## Historical Report
-**Data Source:** `STAT_DB`, which contains replicas of data across core Cisco UCCE database schemas: `t_Agent_Event_Detail`, `t_Agent_Skill_Group_Interval`, `t_Agent_Interval`, and `t_Termination_Call_Detail` [pdf_r0UGPj.pdf].
+**Data Source:** `STAT_DB`, which contains replicas of data across core Cisco UCCE database schemas: `t_Agent_Event_Detail`, `t_Agent_Skill_Group_Interval`, `t_Agent_Interval`, and `t_Termination_Call_Detail`.
 The report uses stored procedure: `[dbo].[SP_REPORT_NPP_HIST_TEAMS_BY_LOCATIONS_V1]`
 
 To dynamically compile and map the regional location directional matrices, a pre-populated reference mapping table **`tNPP_Locations`** is used:
